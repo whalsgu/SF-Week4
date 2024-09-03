@@ -1,0 +1,13 @@
+<form (ngSubmit)="editFunc()">
+    <label for="username">Username:</label>
+    <input type="text" id="username" [(ngModel)]="username" name="username" />
+  
+    <label for="birthdate">Birthdate:</label>
+    <input type="date" id="birthdate" [(ngModel)]="userbirthdate" name="userbirthdate" />
+  
+    <label for="userage">Age:</label>
+    <input type="number" id="userage" [(ngModel)]="userage" name="userage" />
+  
+    <button type="submit">Submit</button>
+  </form>
+  

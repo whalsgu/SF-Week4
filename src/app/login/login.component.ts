@@ -1,34 +1,58 @@
 import { Component } from '@angular/core';
-import {FormsModule } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import e from 'express';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+
+const httpOptions = {
+  headers: new HttpHeaders({
+    'Content-Type': 'application/json'
+  })
+};
+
+const BACKEND_URL = 'http://localhost:8888';
 
 @Component({
   selector: 'app-login',
   standalone: true,
   imports: [FormsModule],
   templateUrl: './login.component.html',
-  styleUrl: './login.component.css'
+  styleUrls: ['./login.component.css']
 })
 export class LoginComponent {
+  email = '';
+  password = '';
 
-    Users = [{username: 'testuser1', password:'testpassword'},
-             {username: 'testuser2', password:'testpassword'},
-             {username: 'testuser3', password:'testpassword'}]
+  constructor(private router: Router, private httpClient: HttpClient) {}
 
-    username = '';
-    password = '';
-    constructor(private router: Router){}
-
-    itemClicked() {
-      console.log(this.username, this.password);
-      alert(`Username: ${this.username} and Password: ${this.password}`);
-      let c = { username: this.username, password: this.password };
-      let find = this.Users.some((e) => e.username === c.username);  
-      alert(find);
+  submit() {
+    let user = { username: this.email, password: this.password };
   
-      if (find) {
-        this.router.navigateByUrl("/account");
-      }
-    }
+    this.httpClient.post<any>(BACKEND_URL + '/login', user, httpOptions)
+      .subscribe({
+        next: (data) => {
+          console.log("Posting: ", JSON.stringify(user));
+          console.log("Post Response: ", JSON.stringify(data));
+  
+          if (data.ok) {
+            console.log("Login successful!");
+  
+            // Storing user data in sessionStorage
+            if (data.userid) sessionStorage.setItem('userid', data.userid.toString());
+            if (data.username) sessionStorage.setItem('username', data.username);
+            if (data.userbirthdate) sessionStorage.setItem('userbirthdate', data.userbirthdate);
+            if (data.userage) sessionStorage.setItem('userage', data.userage.toString());
+  
+            this.router.navigateByUrl("/account");
+          } else {
+            console.log("Login failed!");
+            alert("Login failed! Please check your credentials.");
+          }
+        },
+        error: (err) => {
+          console.error("Error occurred:", err);
+          alert("An error occurred while logging in.");
+        }
+      });
   }
+  
+}
